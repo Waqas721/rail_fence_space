@@ -1,0 +1,243 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rail Fence Cipher</title>
+    <link rel="shortcut icon" href="rail-fence-cipher.png" type="image/x-icon">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #eef1f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 420px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: none;
+            margin-bottom: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .button-group button {
+            width: 48%;
+            padding: 10px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .button-group button.encrypt {
+            background-color: #28a745;
+        }
+
+        .button-group button.encrypt:hover {
+            background-color: #218838;
+        }
+
+        .button-group button.decrypt {
+            background-color: #dc3545;
+        }
+
+        .button-group button.decrypt:hover {
+            background-color: #c82333;
+        }
+
+        .result-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .result-group label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .result-group span {
+            display: block;
+            margin-top: 6px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333;
+            word-wrap: break-word;
+        }
+
+        .table-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        .table-group pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+
+        footer {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rail Fence Cipher</h1>
+
+        <div class="input-group">
+            <label>Enter Text:</label>
+            <textarea id="textInput" rows="2" placeholder="Enter text to encrypt/decrypt..."></textarea>
+        </div>
+        <div class="input-group">
+            <label>Enter Depth:</label>
+            <input type="number" id="depthInput" min="2" placeholder="Enter depth (e.g., 3)">
+        </div>
+        <div class="button-group">
+            <button class="encrypt" onclick="railFenceEncrypt()">Encrypt</button>
+            <button class="decrypt" onclick="railFenceDecrypt()">Decrypt</button>
+        </div>
+
+        <div class="table-group">
+            <label>Rail Fence Table:</label>
+            <pre id="railTable">Table will appear here...</pre>
+        </div>
+
+        <div class="result-group">
+            <label>Result:</label>
+            <span id="textResult">Result will appear here...</span>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Muhammad Waqas Ansari (B21110006095)</p>
+        </footer>
+    </div>
+
+    <script>
+        function railFenceEncrypt() {
+            const text = document.getElementById('textInput').value;
+            const depth = parseInt(document.getElementById('depthInput').value);
+
+            if (!text || isNaN(depth) || depth < 2) {
+                alert("Please enter valid text and depth (at least 2).");
+                return;
+            }
+
+            let rail = Array.from({ length: depth }, () => []);
+            let row = 0, direction = 1;
+
+            for (let char of text) {
+                rail[row].push(char);
+                row += direction;
+
+                if (row === depth - 1 || row === 0) {
+                    direction *= -1;
+                }
+            }
+
+            let cipherText = rail.map(row => row.join('')).join(' ');
+
+            let tableDisplay = rail.map(row => row.join(' ')).join('\n');
+
+            document.getElementById('railTable').textContent = tableDisplay;
+            document.getElementById('textResult').textContent = cipherText;
+        }
+
+        function railFenceDecrypt() {
+            const cipherText = document.getElementById('textInput').value;
+            const depth = parseInt(document.getElementById('depthInput').value);
+
+            if (!cipherText || isNaN(depth) || depth < 2) {
+                alert("Please enter valid cipher text and depth (at least 2).");
+                return;
+            }
+
+            let rail = Array.from({ length: depth }, () => Array(cipherText.length).fill(null));
+            let row = 0, direction = 1;
+
+            for (let i = 0; i < cipherText.length; i++) {
+                rail[row][i] = '*';
+                row += direction;
+
+                if (row === depth - 1 || row === 0) {
+                    direction *= -1;
+                }
+            }
+
+            let index = 0;
+            for (let i = 0; i < depth; i++) {
+                for (let j = 0; j < cipherText.length; j++) {
+                    if (rail[i][j] === '*' && index < cipherText.length) {
+                        rail[i][j] = cipherText[index++];
+                    }
+                }
+            }
+
+            let plainText = '';
+            row = 0;
+            direction = 1;
+            for (let i = 0; i < cipherText.length; i++) {
+                plainText += rail[row][i];
+                row += direction;
+
+                if (row === depth - 1 || row === 0) {
+                    direction *= -1;
+                }
+            }
+
+            let tableDisplay = rail.map(row => row.join(' ')).join('\n');
+
+            document.getElementById('railTable').textContent = tableDisplay;
+            document.getElementById('textResult').textContent = plainText;
+        }
+    </script>
+</body>
+</html>
